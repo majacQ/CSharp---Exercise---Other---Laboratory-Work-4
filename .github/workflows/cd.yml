@@ -66,8 +66,11 @@ jobs:
         name: program
     - name: Convert Flowchart
       run: |
-        sudo apt install snapd
-        sudo snap install drawio
+        sudo apt update
+        sudo apt -y install wget
+        wget https://github.com/jgraph/drawio-desktop/releases/download/v12.3.2/draw.io-amd64-12.3.2.deb
+        sudo dpkg -i draw.io-amd64-12.3.2.deb
+        sudo apt -y -f install
         sudo drawio -x -o flowchart.pdf flowchart.drawio 
     - name: Archive
       run: |
