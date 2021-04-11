@@ -75,7 +75,7 @@ jobs:
         sudo dpkg -i draw.io-amd64-12.3.2.deb
         sudo apt -y -f install
         
-        sudo drawio -x -o flowchart.pdf flowchart.drawio 
+        drawio -x -o flowchart.pdf flowchart.drawio 
     - name: Archive
       run: |
         tar -cf release.tar main.exe flowchart.pdf
