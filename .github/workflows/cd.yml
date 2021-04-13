@@ -23,39 +23,10 @@ jobs:
         name: program
         path: main.exe
         retention-days: 1
-
-  lint:
-    runs-on: ubuntu-latest
-    needs: build
-
-    steps:
-    - uses: actions/checkout@v2
-
-    - name: Markdown Check
-      run: |
-        sudo chown -R $(whoami) /usr/local/bin /usr/local/lib /usr/local/include /usr/local/share
-        npm install -g markdownlint-cli
-        markdownlint *.md
-    - name: Shell Check
-      if: always()
-      run: |
-        sudo apt-get install shellcheck
-        shellcheck *.sh
-      
-    - name: Download Artifacts
-      uses: actions/download-artifact@v2
-      with:
-        name: program
-    - name: CSharp Check
-      if: always()
-      run: |
-        sudo apt update
-        sudo apt-get install gendarme
-        gendarme -- *.exe
   
   publish:
     runs-on: ubuntu-latest
-    needs: lint
+    needs: build
 
     steps:
     - uses: actions/checkout@v2
@@ -66,16 +37,22 @@ jobs:
         name: program
     - name: Convert Flowchart
       run: |
-        sudo apt install snapd
-        sudo snap install drawio
-        drawio -x -o flowchart.pdf flowchart.drawio 
+        sudo apt update
+        sudo apt-get install -y libappindicator3-1
+        
+        sudo apt -y install wget
+        wget https://github.com/jgraph/drawio-desktop/releases/download/v12.3.2/draw.io-amd64-12.3.2.deb
+        sudo dpkg -i draw.io-amd64-12.3.2.deb
+        sudo apt -y -f install
+        
+        export DISPLAY=:1
+        xvfb-run -a drawio -a -x -o flowchart.pdf flowchart.drawio --no-sandbox --headless --disable-gpu
+    
     - name: Archive
       run: |
         tar -cf release.tar main.exe flowchart.pdf
-
     - name: Environment Variable Setup
       run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
-
     - name: Publish to GitHub
       uses: "marvinpinto/action-automatic-releases@latest"
       with:
