@@ -41,16 +41,16 @@ jobs:
     - name: Shell Check
       if: always()
       run: |
-        sudo apt-get install shellcheck
         shellcheck *.sh
 
     - name: Download Artifacts
+      if: always()
       uses: actions/download-artifact@v2
       with:
         name: program
     - name: CSharp Check
       if: always()
       run: |
-        sudo apt update
+        sudo apt-get update
         sudo apt-get install gendarme
         gendarme -- *.exe
