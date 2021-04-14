@@ -66,15 +66,35 @@ jobs:
   publish:
     runs-on: ubuntu-latest
     needs: build
+    if: always()
+    env:
+      MONO_BUILD_SELECTED: 0
 
     steps:
     - uses: actions/checkout@v2
 
-    - name: Download Artifacts
+    - name: Download Mono Build Artifacts
       uses: actions/download-artifact@v2
       with:
         name: program
         path: ${{ env.BUILD_FOLDER_PATH }}
+    - name: Download DotNET Core Build Artifacts
+      uses: actions/download-artifact@v2
+      with:
+        name: vssolution
+        path: ${{ env.BUILD_FOLDER_PATH }}
+    
+    - name: Select One Artifact
+      run: |
+        cd "$BUILD_FOLDER_PATH"
+
+        if [[ -f solution.tar ]]
+        then
+          tar -xf solution.tar
+          rm -f main.exe
+          export MONO_BUILD_SELECTED=1
+        fi
+
     - name: Convert Flowchart
       run: |
         sudo apt update
@@ -91,11 +111,21 @@ jobs:
     - name: Archive
       run: |
         cd "$BUILD_FOLDER_PATH"
-        tar -cf release.tar main.exe flowchart.pdf
+        tar -cf release.tar *
     - name: Environment Variable Setup
       run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
-    - name: Publish to GitHub
+    - name: Publish Mono Build to GitHub
       uses: "marvinpinto/action-automatic-releases@latest"
+      if: env.MONO_BUILD_SELECTED == 0
+      with:
+        repo_token: "${{ secrets.GITHUB_TOKEN }}"
+        automatic_release_tag: "${{ env.RELEASE_VERSION }}"
+        prerelease: false
+        title: "${{ env.RELEASE_VERSION }} Build"
+        files: ${{ env.BUILD_FOLDER_PATH }}/release.tar
+    - name: Publish DotNET Build to GitHub
+      uses: "marvinpinto/action-automatic-releases@latest"
+      if: env.MONO_BUILD_SELECTED == 1
       with:
         repo_token: "${{ secrets.GITHUB_TOKEN }}"
         automatic_release_tag: "${{ env.RELEASE_VERSION }}"
