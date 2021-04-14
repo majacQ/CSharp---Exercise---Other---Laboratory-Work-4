@@ -33,10 +33,12 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
-    - name: DotNET Core Build
+    - name: DotNET Core Setup
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: '3.1.x'
+    
+    - name: DotNET Core Build
       run: |
         mkdir "$BUILD_FOLDER_PATH"
         cd "$BUILD_FOLDER_PATH"
