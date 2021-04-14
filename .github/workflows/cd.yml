@@ -70,6 +70,7 @@ jobs:
       uses: actions/download-artifact@v2
       with:
         name: program
+        working-directory: ${{ env.BUILD_FOLDER_PATH }}
     - name: Convert Flowchart
       run: |
         sudo apt update
@@ -81,10 +82,11 @@ jobs:
         sudo apt -y -f install
         
         export DISPLAY=:1
-        xvfb-run -a drawio -a -x -o flowchart.pdf flowchart.drawio --no-sandbox --headless --disable-gpu
+        xvfb-run -a drawio -a -x -o "$BUILD_FOLDER_PATH/flowchart.pdf" flowchart.drawio --no-sandbox --headless --disable-gpu
     
     - name: Archive
       run: |
+        cd "$BUILD_FOLDER_PATH"
         tar -cf release.tar main.exe flowchart.pdf
     - name: Environment Variable Setup
       run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
@@ -95,4 +97,4 @@ jobs:
         automatic_release_tag: "${{ env.RELEASE_VERSION }}"
         prerelease: false
         title: "${{ env.RELEASE_VERSION }} Build"
-        files: release.tar
+        files: ${{ env.BUILD_FOLDER_PATH }}/release.tar
