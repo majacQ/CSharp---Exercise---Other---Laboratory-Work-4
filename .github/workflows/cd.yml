@@ -6,6 +6,9 @@ on:
 
   workflow_dispatch:
 
+env:
+  BUILD_FOLDER_PATH: bin
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -22,6 +25,38 @@ jobs:
       with:
         name: program
         path: main.exe
+        retention-days: 1
+  
+  dotnetbuild:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: DotNET Core Build
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: '3.1.x'
+      run: |
+        mkdir "$BUILD_FOLDER_PATH"
+        cd "$BUILD_FOLDER_PATH"
+        dotnet new sln -n LaboratoryWork
+        dotnet new console -n Project
+        dotnet sln LaboratoryWork.sln add Project/Project.csproj
+        cp ../*.cs Project/
+        mkdir Project/Extensions Project/Utils
+        cp ../Extensions/*.cs Project/Extensions/
+        cp ../Utils/*.cs Project/Utils/
+        rm -f Project/Program.cs
+        dotnet build LaboratoryWork.sln
+
+        tar -cf solution.tar LaboratoryWork.sln Project
+        
+    - name: Upload Artifacts
+      uses: actions/upload-artifact@v2
+      with:
+        name: vssolution
+        path: "$BUILD_FOLDER_PATH/solution.tar"
         retention-days: 1
   
   publish:
