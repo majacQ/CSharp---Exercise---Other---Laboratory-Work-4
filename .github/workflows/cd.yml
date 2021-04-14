@@ -73,6 +73,7 @@ jobs:
       run: |
         cd "$BUILD_FOLDER_PATH"
         tar -xf solution.tar
+        rm -f solution.tar
 
     - name: Convert Flowchart
       run: |
