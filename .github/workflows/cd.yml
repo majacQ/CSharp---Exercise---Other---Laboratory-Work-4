@@ -53,7 +53,7 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
         name: solution
-        path: "$BUILD_FOLDER_PATH/solution.tar"
+        path: "${{ env.BUILD_FOLDER_PATH }}/solution.tar"
         retention-days: 1
   
   publish:
@@ -63,7 +63,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
-    - name: Download Mono Build Artifacts
+    - name: Download Build Artifacts
       uses: actions/download-artifact@v2
       with:
         name: solution
