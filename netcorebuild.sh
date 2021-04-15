@@ -3,7 +3,7 @@
 BUILD_FOLDER_PATH="$1"
 
 shopt -s extglob
-mkdir "$BUILD_FOLDER_PATH"
+mkdir "$BUILD_FOLDER_PATH" || exit
 cd "$BUILD_FOLDER_PATH"
 dotnet new sln -n LaboratoryWork
 dotnet new console -n Project

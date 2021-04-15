@@ -23,19 +23,7 @@ jobs:
     
     - name: DotNET Core Build
       run: |
-        shopt -s extglob
-
-        mkdir "$BUILD_FOLDER_PATH"
-        cd "$BUILD_FOLDER_PATH"
-        dotnet new sln -n LaboratoryWork
-        dotnet new console -n Project
-        dotnet sln LaboratoryWork.sln add Project/Project.csproj
-        cp ../!(assembly).cs Project/
-        mkdir Project/Extensions Project/Utils
-        cp ../Extensions/*.cs Project/Extensions/
-        cp ../Utils/*.cs Project/Utils/
-        rm -f Project/Program.cs
-        dotnet build LaboratoryWork.sln
+        chmod +x netcorebuild.sh && ./netcorebuild.sh "$BUILD_FOLDER_PATH"
 
         tar -cf solution.tar LaboratoryWork.sln Project
         
